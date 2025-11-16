@@ -1,6 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import axios from 'axios'
 
+// Detectar si estamos en producción o desarrollo
+const isProduction = window.location.hostname !== 'localhost' && !window.location.hostname.includes('127.0.0.1')
+const API_BASE_URL = isProduction 
+  ? 'https://innovahack-mobicorp.onrender.com'
+  : 'http://localhost:8000'
+
 interface User {
   id: number
   email: string
@@ -37,7 +43,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchUser = async (authToken: string) => {
     try {
-      const response = await axios.get('http://localhost:8000/api/auth/me', {
+      const response = await axios.get(`${API_BASE_URL}/api/auth/me`, {
         headers: { Authorization: `Bearer ${authToken}` }
       })
       if (response.data) {
@@ -59,7 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       formData.append('username', email)
       formData.append('password', password)
 
-      const response = await axios.post('http://localhost:8000/api/auth/login', formData, {
+      const response = await axios.post(`${API_BASE_URL}/api/auth/login`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -88,7 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const register = async (email: string, password: string, full_name: string, role: string = 'sales') => {
     try {
-      const response = await axios.post('http://localhost:8000/api/auth/register', {
+      const response = await axios.post(`${API_BASE_URL}/api/auth/register`, {
         email,
         password,
         full_name,

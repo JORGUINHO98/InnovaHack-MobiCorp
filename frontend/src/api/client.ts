@@ -1,7 +1,13 @@
 import axios from 'axios'
 
+// Detectar si estamos en producción o desarrollo
+const isProduction = window.location.hostname !== 'localhost' && !window.location.hostname.includes('127.0.0.1')
+const API_BASE_URL = isProduction 
+  ? 'https://innovahack-mobicorp.onrender.com'
+  : 'http://localhost:8000'
+
 const api = axios.create({
-  baseURL: 'http://localhost:8000',
+  baseURL: API_BASE_URL,
 })
 
 // Interceptor para agregar token y configurar headers

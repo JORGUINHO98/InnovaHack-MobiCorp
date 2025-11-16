@@ -31,9 +31,20 @@ app = FastAPI(
 )
 
 # CORS
+# Dominios permitidos: localhost para desarrollo y Vercel para producción
+allowed_origins = [
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:5173",
+    "https://innova-hack-mobi-corp-git-main-jorge-penas-projects-e24e6692.vercel.app",
+    "https://innova-hack-mobi-corp-pw2iimr8e-jorge-penas-projects-e24e6692.vercel.app",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173", "http://127.0.0.1:3000", "http://127.0.0.1:5173"],
+    allow_origin_regex=r"https://.*\.vercel\.app",
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

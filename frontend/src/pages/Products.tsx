@@ -454,7 +454,7 @@ export default function Products() {
             {product.image_url && (
               <div style={{ marginBottom: '1rem', textAlign: 'center' }}>
                 <img
-                  src={`http://localhost:8000${product.image_url}`}
+                  src={`${(window.location.hostname !== 'localhost' && !window.location.hostname.includes('127.0.0.1')) ? 'https://innovahack-mobicorp.onrender.com' : 'http://localhost:8000'}${product.image_url}`}
                   alt={product.name}
                   style={{
                     width: '100%',
