@@ -1,10 +1,14 @@
-from fastapi import FastAPI, Depends, HTTPException, status, Query
+from fastapi import FastAPI, Depends, HTTPException, status, Query, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 import uvicorn
+import os
+import shutil
+from pathlib import Path
 
 from database import SessionLocal, engine, Base
 from models import User, Product, Order, PriceComparison, PriceAlert
@@ -29,10 +33,11 @@ app = FastAPI(
 # CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173"],
+    allow_origins=["http://localhost:3000", "http://localhost:5173", "http://127.0.0.1:3000", "http://127.0.0.1:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/login")
@@ -48,6 +53,13 @@ def get_db():
 # Inicializar servicios
 price_scraper = PriceScraper()
 chatbot = ChatbotAssistant()
+
+# Configurar directorio para imágenes
+UPLOAD_DIR = Path("uploads/images")
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
+# Montar directorio estático para servir imágenes (después de crear las rutas)
+# Se montará después de definir todas las rutas
 
 # ==================== AUTENTICACIÓN ====================
 
@@ -106,17 +118,84 @@ def get_products(
     return products
 
 @app.post("/api/products", response_model=ProductResponse)
-def create_product(
-    product: ProductCreate,
+async def create_product(
+    name: str = Form(...),
+    category: str = Form(...),
+    description: Optional[str] = Form(None),
+    price: Optional[str] = Form(None),
+    stock: str = Form("0"),
+    sku: Optional[str] = Form(None),
+    image: Optional[UploadFile] = File(None),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Crear nuevo producto"""
-    db_product = Product(**product.dict())
-    db.add(db_product)
-    db.commit()
-    db.refresh(db_product)
-    return db_product
+    """Crear nuevo producto con imagen opcional"""
+    try:
+        image_url = None
+        
+        # Guardar imagen si se proporciona
+        if image and image.filename:
+            # Generar nombre único para la imagen
+            file_extension = os.path.splitext(image.filename)[1] if image.filename else ".jpg"
+            # Sanitizar nombre del producto para el nombre del archivo
+            safe_name = "".join(c if c.isalnum() or c in ('-', '_') else '_' for c in name)[:50]
+            unique_filename = f"{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}_{safe_name}{file_extension}"
+            file_path = UPLOAD_DIR / unique_filename
+            
+            # Guardar archivo
+            with open(file_path, "wb") as buffer:
+                shutil.copyfileobj(image.file, buffer)
+            
+            # Guardar URL relativa
+            image_url = f"/uploads/images/{unique_filename}"
+        
+        # Validar campos requeridos
+        if not name or not name.strip():
+            raise HTTPException(status_code=400, detail="El nombre del producto es requerido")
+        if not category or not category.strip():
+            raise HTTPException(status_code=400, detail="La categoría del producto es requerida")
+        
+        # Convertir tipos
+        price_float = None
+        if price and price.strip():
+            try:
+                price_float = float(price)
+                if price_float < 0:
+                    price_float = None
+            except (ValueError, TypeError):
+                price_float = None
+        
+        stock_int = 0
+        try:
+            stock_int = int(stock) if stock and stock.strip() else 0
+            if stock_int < 0:
+                stock_int = 0
+        except (ValueError, TypeError):
+            stock_int = 0
+        
+        # Crear producto
+        db_product = Product(
+            name=name.strip(),
+            category=category.strip(),
+            description=description.strip() if description and description.strip() else None,
+            price=price_float,
+            stock=stock_int,
+            sku=sku.strip() if sku and sku.strip() else None,
+            image_url=image_url
+        )
+        db.add(db_product)
+        db.commit()
+        db.refresh(db_product)
+        return db_product
+    except HTTPException:
+        db.rollback()
+        raise
+    except Exception as e:
+        db.rollback()
+        print(f"Error completo al crear producto: {type(e).__name__}: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=400, detail=f"Error al crear producto: {str(e)}")
 
 @app.get("/api/products/{product_id}", response_model=ProductResponse)
 def get_product(
@@ -372,6 +451,9 @@ def get_margins_report(
         "avg_margin_percent": sum(m["margin_percent"] for m in margins) / len(margins) if margins else 0,
         "margins": margins
     }
+
+# Montar directorio estático para servir imágenes (al final, después de todas las rutas)
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

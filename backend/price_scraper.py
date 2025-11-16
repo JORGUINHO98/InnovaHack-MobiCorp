@@ -37,29 +37,34 @@ class PriceScraper:
         
         sources = [
             {
-                "source": "Competidor A - Marketplace",
+                "source": "Agimex",
                 "price": round(base_price * random.uniform(0.85, 1.15), 2),
-                "url": f"https://example.com/product/{product_name.replace(' ', '-')}"
+                "url": f"https://agimex.com/productos/{product_name.replace(' ', '-')}"
             },
             {
-                "source": "Competidor B - Tienda Online",
+                "source": "Corimexo",
                 "price": round(base_price * random.uniform(0.90, 1.20), 2),
-                "url": f"https://competitor-b.com/search?q={product_name}"
+                "url": f"https://corimexo.com/buscar?q={product_name}"
             },
             {
-                "source": "Distribuidor Nacional",
+                "source": "Blau",
                 "price": round(base_price * random.uniform(0.88, 1.12), 2),
-                "url": f"https://distribuidor.com/productos/{product_name}"
+                "url": f"https://blau.com/productos/{product_name}"
             },
             {
-                "source": "Marketplace Regional",
+                "source": "Living Room",
                 "price": round(base_price * random.uniform(0.92, 1.18), 2),
-                "url": f"https://marketplace.com/item/{product_name}"
+                "url": f"https://livingroom.com/item/{product_name}"
             },
             {
-                "source": "Catálogo Mayorista",
+                "source": "Tua Casa",
                 "price": round(base_price * random.uniform(0.85, 1.10), 2),
-                "url": f"https://mayorista.com/catalogo/{product_name}"
+                "url": f"https://tuacasa.com/catalogo/{product_name}"
+            },
+            {
+                "source": "La cuisine",
+                "price": round(base_price * random.uniform(0.90, 1.15), 2),
+                "url": f"https://lacuisine.com/productos/{product_name.replace(' ', '-')}"
             }
         ]
         

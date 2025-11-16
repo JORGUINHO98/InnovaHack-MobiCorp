@@ -55,7 +55,7 @@ export default function Dashboard() {
 
   const statCards = [
     {
-      title: 'Muebles',
+      title: 'Productos',
       value: stats.totalProducts,
       icon: Package,
       gradient: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
@@ -183,12 +183,12 @@ export default function Dashboard() {
           marginBottom: '1rem',
           color: 'var(--text-primary)',
         }}>
-          Bienvenido al Sistema MobiCorp
+          Bienvenido a MobiCorp
         </h2>
         <p style={{ color: 'var(--text-secondary)', lineHeight: '1.7', marginBottom: '1.5rem', fontSize: '0.9375rem' }}>
-          Sistema especializado en la gestión de ventas de muebles y mobiliario de oficina. 
-          Gestiona pedidos de sillas ejecutivas, escritorios, mesas y más, compara precios del mercado 
-          y toma decisiones informadas basadas en datos en tiempo real.
+          Sistema especializado en la gestión de ventas de mobiliario corporativo y soluciones de oficina. 
+          Gestiona pedidos de sillas ejecutivas, escritorios gerenciales, mesas de reunión, estaciones de trabajo 
+          y más. Compara precios del mercado y toma decisiones informadas basadas en datos en tiempo real.
         </p>
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
           <button

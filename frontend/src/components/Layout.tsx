@@ -62,13 +62,13 @@ export default function Layout() {
               <h2 style={{ 
                 fontSize: '1.75rem', 
                 fontWeight: '700',
-                color: 'var(--text-primary)',
+                color: '#ef4444',
                 marginBottom: '0.25rem'
               }}>
                 MobiCorp
               </h2>
               <p style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', fontWeight: '500' }}>
-                Muebles y Mobiliario
+                Soluciones Corporativas
               </p>
             </div>
             <button
@@ -267,7 +267,7 @@ export default function Layout() {
             fontWeight: '700', 
             color: 'var(--text-primary)',
           }}>
-            MobiCorp - Muebles y Mobiliario
+            MobiCorp - Soluciones Corporativas
           </h1>
           <div style={{ width: '40px' }}></div>
         </header>

@@ -9,7 +9,7 @@ interface Order {
     id: number
     name: string
     category: string
-    price: number
+    price: number | null
   }
   quantity: number
   requested_price: number
@@ -170,7 +170,7 @@ export default function Orders() {
                   <option value="">Seleccionar producto</option>
                   {products.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {p.name} - Bs. {p.price.toFixed(2)}
+                      {p.name} {p.price !== null && p.price !== undefined ? `- Bs. ${p.price.toFixed(2)}` : '(Consultar precio)'}
                     </option>
                   ))}
                 </select>

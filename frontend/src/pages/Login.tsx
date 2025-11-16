@@ -19,7 +19,9 @@ export default function Login() {
       await login(email, password)
       navigate('/')
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Error al iniciar sesión')
+      console.error('Error en handleSubmit:', err)
+      const errorMessage = err.message || err.response?.data?.detail || 'Error al iniciar sesión'
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }
@@ -89,13 +91,13 @@ export default function Login() {
           <h1 style={{ 
             fontSize: '2.25rem', 
             fontWeight: '700', 
-            color: 'var(--text-primary)',
+            color: '#ef4444',
             marginBottom: '0.5rem' 
           }}>
             MobiCorp
           </h1>
           <p style={{ color: 'var(--text-tertiary)', fontSize: '0.9375rem', fontWeight: '500' }}>
-            Muebles y Mobiliario de Oficina
+            Soluciones Corporativas
           </p>
         </div>
 

@@ -70,14 +70,27 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
+        # Decodificar el token
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get("sub")
         if email is None:
             raise credentials_exception
-    except JWTError:
+    except JWTError as e:
+        # Log del error para debugging
+        print(f"Error decodificando token: {e}")
+        raise credentials_exception
+    except Exception as e:
+        # Log de otros errores
+        print(f"Error inesperado en autenticación: {e}")
         raise credentials_exception
     
     user = db.query(User).filter(User.email == email).first()
     if user is None:
+        print(f"Usuario no encontrado para email: {email}")
         raise credentials_exception
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Usuario inactivo"
+        )
     return user

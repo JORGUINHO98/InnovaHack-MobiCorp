@@ -24,9 +24,10 @@ class Product(Base):
     name = Column(String, index=True)
     category = Column(String)
     description = Column(Text, nullable=True)
-    price = Column(Float)  # Precio base/costo
+    price = Column(Float, nullable=True)  # Precio base/costo (opcional)
     stock = Column(Integer, default=0)
     sku = Column(String, unique=True, nullable=True)
+    image_url = Column(String, nullable=True)  # URL o ruta de la imagen
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     
     orders = relationship("Order", back_populates="product")

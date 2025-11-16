@@ -23,7 +23,9 @@ export default function Register() {
       await register(formData.email, formData.password, formData.full_name, formData.role)
       navigate('/')
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Error al registrar usuario')
+      console.error('Error en handleSubmit:', err)
+      const errorMessage = err.message || err.response?.data?.detail || 'Error al registrar usuario'
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }
@@ -90,17 +92,27 @@ export default function Register() {
           }}>
             <span style={{ fontSize: '2rem', fontWeight: 'bold', color: 'white' }}>M</span>
           </div>
-          <h1 style={{ 
-            fontSize: '2.25rem', 
-            fontWeight: '700', 
+          <div style={{ marginBottom: '1rem' }}>
+            <h1 style={{ 
+              fontSize: '2.25rem', 
+              fontWeight: '700', 
+              color: '#ef4444',
+              marginBottom: '0.25rem' 
+            }}>
+              MobiCorp
+            </h1>
+            <p style={{ color: 'var(--text-tertiary)', fontSize: '0.875rem', fontWeight: '500' }}>
+              Soluciones Corporativas
+            </p>
+          </div>
+          <h2 style={{ 
+            fontSize: '1.75rem', 
+            fontWeight: '600', 
             color: 'var(--text-primary)',
             marginBottom: '0.5rem' 
           }}>
             Crear Cuenta
-          </h1>
-          <p style={{ color: 'var(--text-tertiary)', fontSize: '0.9375rem' }}>
-            Regístrate en MobiCorp
-          </p>
+          </h2>
         </div>
 
         <form onSubmit={handleSubmit}>

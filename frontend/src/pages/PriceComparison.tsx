@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 import api from '../api/client'
-import { TrendingUp, RefreshCw, AlertTriangle } from 'lucide-react'
+import { TrendingUp, RefreshCw } from 'lucide-react'
 
 interface Product {
   id: number
   name: string
   category: string
-  price: number
+  price: number | null
 }
 
 interface PriceSuggestion {
@@ -22,26 +22,14 @@ interface PriceSuggestion {
   comparison_id: number
 }
 
-interface PriceAlert {
-  id: number
-  product_id: number
-  product_name: string
-  old_price: number
-  new_price: number
-  variation_percent: number
-  created_at: string
-}
-
 export default function PriceComparison() {
   const [products, setProducts] = useState<Product[]>([])
   const [selectedProduct, setSelectedProduct] = useState<number | null>(null)
   const [suggestion, setSuggestion] = useState<PriceSuggestion | null>(null)
-  const [alerts, setAlerts] = useState<PriceAlert[]>([])
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     fetchProducts()
-    fetchAlerts()
   }, [])
 
   const fetchProducts = async () => {
@@ -53,17 +41,6 @@ export default function PriceComparison() {
     }
   }
 
-  const fetchAlerts = async () => {
-    try {
-      const response = await api.get('/api/prices/alerts')
-      setAlerts(response.data)
-    } catch (error) {
-      console.error('Error fetching alerts:', error)
-    } finally {
-      setLoadingAlerts(false)
-    }
-  }
-
   const handleCompare = async () => {
     if (!selectedProduct) return
 
@@ -71,7 +48,6 @@ export default function PriceComparison() {
     try {
       const response = await api.post(`/api/prices/suggest?product_id=${selectedProduct}`)
       setSuggestion(response.data)
-      fetchAlerts() // Actualizar alertas después de comparar
     } catch (error: any) {
       alert(error.response?.data?.detail || 'Error al comparar precios')
     } finally {
@@ -82,55 +58,6 @@ export default function PriceComparison() {
   return (
     <div>
       <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '2rem', color: 'var(--text-primary)' }}>Comparación de Precios</h1>
-
-      {/* Alertas de Precio */}
-      {alerts.length > 0 && (
-        <div style={{ marginBottom: '2rem' }}>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-primary)' }}>
-            <AlertTriangle size={24} color="var(--warning)" />
-            Alertas de Variación de Precios
-          </h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {alerts.slice(0, 5).map((alert) => (
-              <div
-                key={alert.id}
-                style={{
-                  backgroundColor: 'var(--bg-card)',
-          border: '1px solid var(--border-dark)',
-          color: 'var(--text-primary)',
-                  padding: '1.5rem',
-                  borderRadius: '12px',
-                  boxShadow: 'var(--shadow)',
-                  borderLeft: '4px solid var(--warning)',
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-                  <div>
-                    <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
-                      {alert.product_name}
-                    </h3>
-                    <p style={{ color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>
-                      Precio anterior: <strong>Bs. {alert.old_price.toFixed(2)}</strong>
-                    </p>
-                    <p style={{ color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>
-                      Precio nuevo: <strong>Bs. {alert.new_price.toFixed(2)}</strong>
-                    </p>
-                    <p
-                      style={{
-                        color: alert.variation_percent > 0 ? 'var(--danger)' : 'var(--success)',
-                        fontWeight: 'bold',
-                      }}
-                    >
-                      Variación: {alert.variation_percent > 0 ? '+' : ''}
-                      {alert.variation_percent.toFixed(2)}%
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Comparación de Precios */}
       <div
